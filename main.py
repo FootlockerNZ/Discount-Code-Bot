@@ -71,6 +71,7 @@ def validateInvoice(invoice_id, email, username, server):
                 'stylerunner': 'STYLERUNNER',
                 'subtype': 'SUBTYPE',
                 'snkrdunk accounts': 'SNKRDUNK ACCOUNTS',
+                'doordash': 'DOORDASH ACCOUNTS'
             }
             
             product = next((v for k, v in product_map.items() if k in title), 'INVALID')
@@ -82,6 +83,7 @@ def validateInvoice(invoice_id, email, username, server):
                             'SNKRDUNK ACCOUNTS': 1,
                             'HYPE DC': 35,
                             'SUBTYPE': 35,
+                            'DOORDASH ACCOUNTS': 40,
                             'STYLERUNNER': 20
                         }
                         
@@ -239,7 +241,7 @@ async def swine_redeem_snkrdunk(interaction: discord.Interaction, order_id: str,
             if writeCodes('', order_id, 'SNKRDUNK Referral') != True:
                 log(slug+'Failed to save to used.csv')
         else:
-            await interaction.response.send_message(resp[1]+" If you think this is an error please contact <@377735961200689152>.", ephemeral=True)
+            await interaction.response.send_message(resp[1]+f" If you think this is an error please contact <@{config['discordAdminId']}>.", ephemeral=True)
     else:
         log(slug+f"Used the redeem command with an invalid referral code: {code}.")
         await interaction.response.send_message(f"{interaction.user.name} that referral code is invalid. It must be 6 characters in length.", ephemeral=True)
@@ -272,14 +274,14 @@ async def swine_redeem(interaction: discord.Interaction, order_id: str, email: s
 
         if len(codes) != resp[1]:
             log(slug+f"Not enough stock to fulfil order {order_id} for product {product}")
-            if 'SNKRDUNK' in product:
-                await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product}. Unfortunately there are not enough accounts in stock to fulfil your order. Please contact <@377735961200689152>.", ephemeral=True)
+            if 'SNKRDUNK' in product or 'DOORDASH' in product:
+                await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product}. Unfortunately there are not enough accounts in stock to fulfil your order. Please contact <@{config['discordAdminId']}>.", ephemeral=True)
             else:
-                await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product} {discount} off Code(s). Unfortunately there are not enough codes in stock to fulfil your order. Please contact <@377735961200689152>.", ephemeral=True)
+                await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product} {discount} off Code(s). Unfortunately there are not enough codes in stock to fulfil your order. Please contact <@{config['discordAdminId']}>.", ephemeral=True)
             addCodes(codes, product.strip().replace(' ', ''))
         else:
             log(slug+f"Fulfilled order {order_id} for product {product}")
-            if 'SNKRDUNK' in product:
+            if 'SNKRDUNK' in product or 'DOORDASH' in product:
                 await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product}. They will be direct messaged to you.", ephemeral=True)
                 await interaction.user.send(f"{interaction.user.name} here are your {str(resp[1])} {product}.\n\nEmail:Password\n"+''.join(codes))
             else:
@@ -288,7 +290,7 @@ async def swine_redeem(interaction: discord.Interaction, order_id: str, email: s
             if writeCodes(codes, order_id, product) != True:
                 log(slug+'Failed to save to used.csv')
     else:
-        await interaction.response.send_message(resp[1]+" If you think this is an error please contact <@377735961200689152>.", ephemeral=True)
+        await interaction.response.send_message(resp[1]+f" If you think this is an error please contact <@{config['discordAdminId']}>.", ephemeral=True)
 
 
 
@@ -296,7 +298,7 @@ async def swine_redeem(interaction: discord.Interaction, order_id: str, email: s
 @app_commands.describe(amount="Amount of codes",code="SNKRDUNK Referral Code")
 async def swine_redeem(interaction: discord.Interaction, code: str, amount: int):
     slug = f'[{interaction.guild}] [{interaction.user.name}] : '
-    if interaction.user.name == 'tab.co.nz':
+    if interaction.user.id == config['discordAdminId']:
         await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(amount)} SNKRDUNK coupon(s). Please allow up to 10 minutes for them to show.", ephemeral=True)
         (threading.Thread(target=start_threads,args=(slug, int(amount), code, domains, apiHeaders, interaction.user.name, interaction.guild))).start()
     else:
@@ -315,7 +317,7 @@ async def swine_shop(interaction: discord.Interaction):
 async def swine_help_snkrdunk(interaction: discord.Interaction):
     slug = f'[{interaction.guild}] [{interaction.user.name}] : '
     log(slug+"Used the snkrdunk help command")
-    await interaction.response.send_message(f'{interaction.user.name} you have requested help.\n\nTo find your order number search **"Swine Codes"** in your email and it is the following mix of numbers and letters in the format ```000000-000000000000-000000```\n\nTo find your SNKRDUNK referral code go to the app then click **"Account"** which is located in the bottom right. Then click **"Invitation Code. GET coupons"** near the top under the Coupons tab. It is the mix of 6 numbers and letters.\n\nThen run the command **/swine_redeem_snkrdunk** and fill in the spots with the corresponding information and your all done.\n\nTo shop codes visit https://swinecodes.bgng.io/products.\n\nFor more support DM <@377735961200689152>.', ephemeral=True)
+    await interaction.response.send_message(f'{interaction.user.name} you have requested help.\n\nTo find your order number search **"Swine Codes"** in your email and it is the following mix of numbers and letters in the format ```000000-000000000000-000000```\n\nTo find your SNKRDUNK referral code go to the app then click **"Account"** which is located in the bottom right. Then click **"Invitation Code. GET coupons"** near the top under the Coupons tab. It is the mix of 6 numbers and letters.\n\nThen run the command **/swine_redeem_snkrdunk** and fill in the spots with the corresponding information and your all done.\n\nTo shop codes visit https://swinecodes.bgng.io/products.\n\nFor more support DM <@{config['discordAdminId']}>.', ephemeral=True)
 
 
 
@@ -323,7 +325,7 @@ async def swine_help_snkrdunk(interaction: discord.Interaction):
 async def swine_help(interaction: discord.Interaction):
     slug = f'[{interaction.guild}] [{interaction.user.name}] : '
     log(slug+"Used the default help command")
-    await interaction.response.send_message(f'{interaction.user.name} you have requested help.\n\nTo find your order number search **"Swine Codes"** in your email, with product either being *Stylerunner*, *Hype DC* or *Subtype*, and it is the following mix of numbers and letters in the format ```000000-000000000000-000000```\n\nThen run the command **/swine_redeem** and fill in the spots with the corresponding information and your all done. Make sure to store the codes somewhere as they will disappear after viewing a different channel.\n\nTo shop codes visit https://swinecodes.bgng.io/products.\n\nFor more support DM <@377735961200689152>.', ephemeral=True)
+    await interaction.response.send_message(f'{interaction.user.name} you have requested help.\n\nTo find your order number search **"Swine Codes"** in your email, with product either being *Stylerunner*, *Hype DC* or *Subtype*, and it is the following mix of numbers and letters in the format ```000000-000000000000-000000```\n\nThen run the command **/swine_redeem** and fill in the spots with the corresponding information and your all done. Make sure to store the codes somewhere as they will disappear after viewing a different channel.\n\nTo shop codes visit https://swinecodes.bgng.io/products.\n\nFor more support DM <@{config['discordAdminId']}>.', ephemeral=True)
 
 
 
@@ -345,8 +347,14 @@ async def swine_redeem(interaction: discord.Interaction, email: str):
 
 ctypes.windll.kernel32.SetConsoleTitleW("Swine Codes")
 
-config = Data().loadJson('config.json')
 
+def load_config(path='config.json'):
+    """Load and return JSON config as a dict."""
+    with open(path, 'r') as f:
+        return json.load(f)
+    
+
+config = load_config()
 BILLGANG_API_KEY = config['billgangAPI']
 SHOP_ID = config['billgangShopId']
 
