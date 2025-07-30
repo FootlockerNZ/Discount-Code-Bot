@@ -2,13 +2,12 @@ import requests
 import colorama
 import hashlib
 import string
-from time import sleep
-from termcolor import *
+import random
 import ctypes
 import time
-from utility import *
+from time import sleep
+from termcolor import *
 from bs4 import *
-import random
 #from smspva import *
 from sim import *
 from EMAILHandler import *
@@ -48,8 +47,8 @@ class SNKRDUNK:
         self.user = user
         self.server = server
         self.slug = f'[GENERATOR] [{server}] [{user}] [{str(task)}] : '
-        self.config = Data().loadJson('config.json')
-        self.proxies = Data().loadProxies('proxies.txt')
+        self.config = self.load_config()
+        self.proxies = self.load_proxies()
         self.apiheaders = apiheaders
         self.session = requests.Session()
         self.headers = {
@@ -70,6 +69,14 @@ class SNKRDUNK:
         }
         log(self.slug+'Starting Task')
         self.start_task()
+
+    def load_config(self, path='config.json'):
+        with open(path, 'r') as f:
+            return json.load(f)
+
+    def load_proxies(self, path='proxies.txt'):
+        with open(path, 'r') as f:
+            return [line.strip() for line in f if line.strip()]
     
     def generate_password(self):
         capital_letter = random.choice(string.ascii_uppercase)
@@ -250,7 +257,7 @@ class SNKRDUNK:
 
         while True:
             log(self.slug+'Verifying phone...')
-            k = SMS(self.referral,self.session,self.proxies, self.user, self.server, self.task).start_task()
+            k = SMS(self.referral,self.session,self.proxies, self.user, self.server, self.task, self.config).start_task()
             if not k:
                 log(self.slug+"Error while verifying phone")   
                 return False
