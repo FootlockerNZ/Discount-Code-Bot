@@ -15,18 +15,17 @@ colorama.init()
 
 
 class SMS:
-    def __init__(self,refferal,session,proxies, user, server, task):
+    def __init__(self,refferal,session,proxies, user, server, task, config):
         self.proxies = proxies
         if len(proxies) != 0:
             self.usingProxies = True
         else:
             self.usingProxies = False
-        self.session = session
+        self.session = session 
         self.refferal = refferal
         self.task = task
         self.user = user
         self.server = server
-        config = Data().loadJson('config.json')
         self.country_code = config['pvaCountry']
         self.api_key = config['pvaAPI']
         self.slug = f'[SMS CONFIRMER] [{server}] [{user}] [{task}]: '
