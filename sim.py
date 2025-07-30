@@ -4,7 +4,6 @@ import colorama
 from termcolor import *
 import time
 import random
-from utility import *
 from classes.logger import logger
 
 log = logger().log
@@ -15,7 +14,7 @@ colorama.init()
 
 
 class SMS:
-    def __init__(self,refferal,session,proxies, user, server, task):
+    def __init__(self,referral,session,proxies, user, server, task, config):
         self.proxies = proxies
         if len(proxies) != 0:
             self.usingProxies = True
@@ -23,10 +22,9 @@ class SMS:
             self.usingProxies = False
         self.task = task
         self.session = session
-        self.refferal = refferal
+        self.referral = referral
         self.user = user
         self.server = server
-        config = Data().loadJson('config.json')
         self.country_code = config['5simCountry']
         self.headers = {
             'Authorization': 'Bearer ' + config['5simAPI'],
