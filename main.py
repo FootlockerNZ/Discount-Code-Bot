@@ -71,7 +71,6 @@ def validateInvoice(invoice_id, email, username, server):
                 'stylerunner': 'STYLERUNNER',
                 'subtype': 'SUBTYPE',
                 'snkrdunk accounts': 'SNKRDUNK ACCOUNTS',
-                'doordash': 'DOORDASH ACCOUNTS'
             }
             
             product = next((v for k, v in product_map.items() if k in title), 'INVALID')
@@ -83,7 +82,6 @@ def validateInvoice(invoice_id, email, username, server):
                             'SNKRDUNK ACCOUNTS': 1,
                             'HYPE DC': 35,
                             'SUBTYPE': 35,
-                            'DOORDASH ACCOUNTS': 40,
                             'STYLERUNNER': 20
                         }
                         
@@ -274,14 +272,14 @@ async def swine_redeem(interaction: discord.Interaction, order_id: str, email: s
 
         if len(codes) != resp[1]:
             log(slug+f"Not enough stock to fulfil order {order_id} for product {product}")
-            if 'SNKRDUNK' in product or 'DOORDASH' in product:
+            if 'SNKRDUNK' in product:
                 await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product}. Unfortunately there are not enough accounts in stock to fulfil your order. Please contact <@377735961200689152>.", ephemeral=True)
             else:
                 await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product} {discount} off Code(s). Unfortunately there are not enough codes in stock to fulfil your order. Please contact <@377735961200689152>.", ephemeral=True)
             addCodes(codes, product.strip().replace(' ', ''))
         else:
             log(slug+f"Fulfilled order {order_id} for product {product}")
-            if 'SNKRDUNK' in product or 'DOORDASH' in product:
+            if 'SNKRDUNK' in product:
                 await interaction.response.send_message(f"{interaction.user.name} thank you for redeeming your {str(resp[1])} {product}. They will be direct messaged to you.", ephemeral=True)
                 await interaction.user.send(f"{interaction.user.name} here are your {str(resp[1])} {product}.\n\nEmail:Password\n"+''.join(codes))
             else:
